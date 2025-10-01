@@ -1,14 +1,28 @@
-# Imagem base com Java 21
-FROM openjdk:21-jdk-slim
+# Etapa 1: Build da aplicação
+FROM eclipse-temurin:21-jdk AS build
 
-# Diretório de trabalho
+# Define diretório de trabalho dentro do container
 WORKDIR /app
 
-# Copiar o JAR (você precisa buildar localmente primeiro)
-COPY target/sistema-manutencao-*.jar app.jar
+# Copia todos os arquivos do projeto para o container
+COPY . .
 
-# Expor a porta
+# Garante que o mvnw tenha permissão de execução
+RUN chmod +x mvnw
+
+# Build do projeto sem rodar testes
+RUN ./mvnw clean package -DskipTests
+
+# Etapa 2: Imagem final para rodar a aplicação
+FROM eclipse-temurin:21-jdk
+
+WORKDIR /app
+
+# Copia o JAR gerado na etapa de build
+COPY --from=build /app/target/*.jar app.jar
+
+# Expõe a porta padrão do Spring Boot
 EXPOSE 8080
 
-# Comando para executar
-CMD ["java", "-jar", "app.jar"]
+# Comando para rodar a aplicação
+ENTRYPOINT ["java", "-jar", "app.jar"]
