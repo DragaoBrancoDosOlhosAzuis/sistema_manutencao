@@ -6,15 +6,19 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+// indica que esta interface e um repository do spring
 @Repository
 public interface SolicitacaoManutencaoRepository extends JpaRepository<SolicitacaoManutencao, Long> {
     
+    // busca por status, ordenadas pela data
     List<SolicitacaoManutencao> findByStatusOrderByDataSolicitacaoDesc(SolicitacaoManutencao.Status status);
     
+    // busca todas as solicitacoes ordenadas pela data
     List<SolicitacaoManutencao> findByOrderByDataSolicitacaoDesc();
     
-    // Busca solicitações pendentes ordenadas por prioridade
+    // consulta para buscar solicitacoes pendentes
+    // ordena pela prioridade
+    // ordena pela data de solicitacao em ordem crescente
     @Query("SELECT s FROM SolicitacaoManutencao s WHERE s.status IN ('ABERTA', 'EM_ANDAMENTO') " +
            "ORDER BY " +
            "CASE s.prioridade " +
